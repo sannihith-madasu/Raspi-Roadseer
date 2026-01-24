@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# Virtual environments
+.venv/
+venv/
+
+# YOLO/Ultralytics outputs
+runs/
+
+# Model weights / large binaries (we'll keep only final ones later if needed)
+*.pt
+*.onnx
+*.tflite
+
+# OS / editor stuff
+.DS_Store
+.vscode/
+
+# Datasets
+datasets/
