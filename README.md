@@ -2,6 +2,8 @@
 
 This repo contains the laptop-side code for training a pothole detector using YOLOv8n, and test scripts to run the model on images and videos.
 
+This also contains the fine-tuned model for pothole detetion only.
+
 ## Setup
 
 ```bash

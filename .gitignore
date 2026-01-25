@@ -23,3 +23,9 @@ runs/
 
 # Datasets
 datasets/
+
+# Allow committed final models in models/ (override the *.pt rule)
+!models/
+!models/*.pt
+!models/*.onnx
+!models/*.tflite
