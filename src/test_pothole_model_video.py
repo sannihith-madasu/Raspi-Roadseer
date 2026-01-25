@@ -4,7 +4,7 @@ from ultralytics import YOLO
 import cv2
 import time
 
-MODEL_PATH = "runs/detect/train/weights/best.pt"  # adjust if needed
+MODEL_PATH = "models/pothole_yolov8n_best.pt"  # adjust if needed
 VIDEO_PATH = "datasets/potholes_kaggle/sample_video.mp4"  # or your own video
 
 model = YOLO(MODEL_PATH)
