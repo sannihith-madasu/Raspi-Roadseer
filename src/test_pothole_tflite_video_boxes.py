@@ -55,7 +55,7 @@ def nms(boxes, scores, iou_threshold):
         order = order[inds + 1]
     return keep
 
-VIDEO_PATH = "data/road_video.mp4"
+VIDEO_PATH = "data/sample_video.mp4"
 cap = cv2.VideoCapture(VIDEO_PATH)
 if not cap.isOpened():
     raise RuntimeError(f"Cannot open video: {VIDEO_PATH}")
