@@ -24,9 +24,15 @@ runs/
 
 # Datasets
 datasets/
+data/
 
 # Allow committed final models in models/ (override the *.pt rule)
 !models/
-!models/*.pt
-!models/*.onnx
-!models/*.tflite
+!models/*/
+!models/**/*.pt
+!models/**/*.onnx
+!models/**/*.tflite
+
+# Quantization helpers 
+quantization_helpers/
+

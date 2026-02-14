@@ -4,7 +4,7 @@ from ultralytics import YOLO
 import cv2
 import time
 
-MODEL_PATH = "models/pothole_barricade_custom_model.pt"  # adjust if needed
+MODEL_PATH = "models/yolo26n_fine_tuned.pt"  # adjust if needed
 VIDEO_PATH = "data/testcase5.mp4"  # or your own video
 
 # ROI Configuration: Ignore bottom % of frame (where car bonnet appears)
