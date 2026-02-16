@@ -10,8 +10,8 @@ import time
 MODEL_PATH = "models/exported_models/yolo26n_fine_tuned_int8.onnx"
 IMGSZ = 320
 CONF_THRESHOLD = 0.5
-CLASS_NAMES = ["pothole", "barricade"]
-COLORS = [(0, 0, 255), (0, 165, 255)]  # Red for pothole, Orange for barricade
+CLASS_NAMES = ["barricade", "pothole"]
+COLORS = [(0, 165, 255), (0, 0, 255)]  # Orange for barricade, Red for pothole
 
 # ============================================================
 # 1. LOAD MODEL
