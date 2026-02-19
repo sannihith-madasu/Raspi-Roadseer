@@ -43,10 +43,6 @@ WARDS = {
         "center": (17.4399, 78.4983),
         "roads": ["Tank Bund Road", "MG Road", "Paradise Circle Road"],
     },
-    "Begumpet": {
-        "center": (17.4440, 78.4675),
-        "roads": ["Begumpet Airport Road", "Sardar Patel Road", "Rasoolpura Main Road"],
-    },
     "Kondapur": {
         "center": (17.4589, 78.3726),
         "roads": ["Kondapur Main Road", "Botanical Garden Road", "Jayabheri Road"],
