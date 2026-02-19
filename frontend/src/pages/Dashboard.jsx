@@ -4,7 +4,8 @@ import {
   PieChart, Pie, Cell, LineChart, Line, CartesianGrid,
 } from "recharts";
 import { AlertTriangle, MapPin, Cpu, TrendingUp, Activity, Users } from "lucide-react";
-import { getMockData, getMockStats } from "../data/mockPotholes";
+import { getMockData, getMockStats } from "../data/api";
+import { useApi } from "../hooks/useApi";
 
 const COLORS = { critical: "#ef4444", moderate: "#f59e0b", low: "#22c55e" };
 
@@ -26,11 +27,13 @@ function StatCard({ icon: Icon, label, value, sub, color = "text-orange-400" }) 
 }
 
 export default function Dashboard() {
-  const data = useMemo(() => getMockData(), []);
-  const stats = useMemo(() => getMockStats(data), [data]);
+  // ── ALL HOOKS FIRST ──
+  const { data, loading: loadingData } = useApi(getMockData);
+  const { data: stats, loading: loadingStats } = useApi(getMockStats);
 
   // Ward breakdown
   const wardData = useMemo(() => {
+    if (!data) return [];
     const counts = {};
     data.forEach((d) => {
       counts[d.ward] = counts[d.ward] || { ward: d.ward, critical: 0, moderate: 0, low: 0 };
@@ -40,11 +43,14 @@ export default function Dashboard() {
   }, [data]);
 
   // Severity distribution for pie chart
-  const severityPie = [
-    { name: "Critical", value: stats.critical_count, color: COLORS.critical },
-    { name: "Moderate", value: stats.moderate_count, color: COLORS.moderate },
-    { name: "Low", value: stats.low_count, color: COLORS.low },
-  ];
+  const severityPie = useMemo(() => {
+    if (!stats) return [];
+    return [
+      { name: "Critical", value: stats.critical_count, color: COLORS.critical },
+      { name: "Moderate", value: stats.moderate_count, color: COLORS.moderate },
+      { name: "Low", value: stats.low_count, color: COLORS.low },
+    ];
+  }, [stats]);
 
   // Fake daily trend (last 14 days)
   const dailyTrend = useMemo(() => {
@@ -57,6 +63,10 @@ export default function Dashboard() {
       };
     });
   }, []);
+
+  // ── Loading check AFTER all hooks ──
+  if (loadingData || loadingStats || !data || !stats)
+    return <div className="flex h-screen items-center justify-center text-slate-500">Loading...</div>;
 
   return (
     <div className="min-h-screen pt-16">

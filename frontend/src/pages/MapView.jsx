@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
 import { Filter, Search, AlertTriangle, X, ChevronDown } from "lucide-react";
-import { getMockData, getMockStats } from "../data/mockPotholes";
+import { getMockData, getMockStats } from "../data/api";
+import { useApi } from "../hooks/useApi";
 
 // Severity → color
 function severityColor(score) {
@@ -23,18 +24,20 @@ function MapUpdater({ center }) {
 }
 
 export default function MapView() {
-  const allData = useMemo(() => getMockData(), []);
-  const stats = useMemo(() => getMockStats(allData), [allData]);
+  // ── ALL HOOKS FIRST ──
+  const { data: allData, loading: loadingData } = useApi(getMockData);
+  const { data: stats, loading: loadingStats } = useApi(getMockStats);
 
   const [filters, setFilters] = useState({
-    severity: "all",       // all | critical | moderate | low
-    classType: "all",      // all | pothole | barricade
+    severity: "all",
+    classType: "all",
     search: "",
   });
   const [selectedDetection, setSelectedDetection] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
 
   const filtered = useMemo(() => {
+    if (!allData) return [];
     return allData.filter((d) => {
       if (filters.severity !== "all" && d.status !== filters.severity) return false;
       if (filters.classType !== "all" && d.class_name !== filters.classType) return false;
@@ -50,7 +53,11 @@ export default function MapView() {
     });
   }, [allData, filters]);
 
-  const center = [17.385, 78.4867]; // Hyderabad
+  const center = [17.385, 78.4867];
+
+  // ── Loading check AFTER all hooks ──
+  if (loadingData || loadingStats || !allData || !stats)
+    return <div className="flex h-screen items-center justify-center text-slate-500">Loading...</div>;
 
   return (
     <div className="flex h-screen pt-16">
@@ -195,7 +202,7 @@ export default function MapView() {
                     <p><strong>Ward:</strong> {d.ward}</p>
                     <p><strong>Severity:</strong> {d.severity_score}/10</p>
                     <p><strong>Confidence:</strong> {(d.confidence * 100).toFixed(0)}%</p>
-                    <p><strong>Reports:</strong> {d.report_count} from {d.device_ids.length} devices</p>
+                    <p><strong>Reports:</strong> {d.report_count}</p>
                     <p><strong>First seen:</strong> {new Date(d.first_reported).toLocaleDateString()}</p>
                   </div>
                 </div>

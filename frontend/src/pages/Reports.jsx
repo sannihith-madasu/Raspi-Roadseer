@@ -1,12 +1,15 @@
 import { useMemo } from "react";
 import { FileText, Download, AlertTriangle, MapPin, Calendar } from "lucide-react";
-import { getMockData } from "../data/mockPotholes";
+import { getMockData } from "../data/api";
+import { useApi } from "../hooks/useApi";
 
 export default function Reports() {
-  const data = useMemo(() => getMockData(), []);
+  // ── ALL HOOKS FIRST ──
+  const { data, loading } = useApi(getMockData);
 
   // Group by ward
   const wardReports = useMemo(() => {
+    if (!data) return [];
     const grouped = {};
     data.forEach((d) => {
       if (!grouped[d.ward]) {
@@ -32,6 +35,10 @@ export default function Reports() {
     a.download = `roadseer_report_${ward.replace(/\s/g, "_")}.csv`;
     a.click();
   };
+
+  // ── Loading check AFTER all hooks ──
+  if (loading || !data)
+    return <div className="flex h-screen items-center justify-center text-slate-500">Loading...</div>;
 
   return (
     <div className="min-h-screen pt-16">

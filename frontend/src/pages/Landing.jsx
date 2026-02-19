@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Map, Users, Shield, Cpu, Radio, TrendingUp } from "lucide-react";
-import { getMockStats } from "../data/mockPotholes";
-
-const stats = getMockStats();
+import { getMockStats } from "../data/api";
+import { useApi } from "../hooks/useApi";
 
 const features = [
   {
@@ -47,6 +46,13 @@ const fadeUp = {
 };
 
 export default function Landing() {
+  // ── ALL HOOKS FIRST ──
+  const { data: stats, loading } = useApi(getMockStats);
+
+  // ── Loading check AFTER all hooks ──
+  if (loading || !stats)
+    return <div className="flex h-screen items-center justify-center text-slate-500">Loading...</div>;
+
   return (
     <div className="pt-16">
       {/* Hero */}
