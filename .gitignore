@@ -24,7 +24,6 @@ runs/
 
 # Datasets
 datasets/
-data/
 
 # Allow committed final models in models/ (override the *.pt rule)
 !models/
