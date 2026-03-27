@@ -11,6 +11,10 @@ DATABASE_URL = os.getenv(
     "sqlite:///roadseer.db"
 )
 
+# Some platforms provide postgres://; SQLAlchemy expects postgresql://
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 # SQLite needs check_same_thread=False
 connect_args = {"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
 

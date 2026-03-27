@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import datetime, timezone
 from typing import Optional
+import os
 
 from database import engine, get_db, Base
 from models import Detection, RawReport, Device
@@ -26,14 +27,27 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="RoadSeer API", version="1.0.0")
 
-# CORS — allow your frontend
+# CORS — configure via FRONTEND_ORIGINS for production
+# Example: https://roadseer.vercel.app,https://roadseer-staging.vercel.app
+origins_env = os.getenv("FRONTEND_ORIGINS", "*").strip()
+if origins_env == "*":
+    allowed_origins = ["*"]
+else:
+    allowed_origins = [o.strip() for o in origins_env.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # tighten in production
-    allow_credentials=True,
+    allow_origins=allowed_origins,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.get("/health")
+def health_check():
+    """Healthcheck endpoint for Render/uptime checks."""
+    return {"status": "ok"}
 
 
 # ─────────────────────────────────────────────

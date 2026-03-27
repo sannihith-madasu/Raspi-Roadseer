@@ -35,3 +35,12 @@ datasets/
 # Quantization helpers 
 quantization_helpers/
 
+# Android application
+android/.gradle/
+android/.kotlin/
+android/**/build/
+android/local.properties
+android/.idea/
+android/*.iml
+android/**/.DS_Store
+
