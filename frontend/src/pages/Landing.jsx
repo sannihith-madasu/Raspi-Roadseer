@@ -185,7 +185,7 @@ export default function Landing() {
 
       {/* Footer */}
       <footer className="border-t border-slate-800 py-8 text-center text-sm text-slate-600">
-        Raspi-RoadSeer • Arm SoC AI Bharat Hackathon • Built on Raspberry Pi 5
+        © 2026 Raspi-Roadseer | Advancing Road Safety with Edge AI
       </footer>
     </div>
   );
