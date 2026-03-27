@@ -1,7 +1,8 @@
 import { useMemo } from "react";
-import { FileText, Download, AlertTriangle, MapPin, Calendar } from "lucide-react";
+import { Download, MapPin, Calendar } from "lucide-react";
 import { getMockData } from "../data/api";
 import { useApi } from "../hooks/useApi";
+import EmptyState from "../components/EmptyState";
 
 export default function Reports() {
   // ── ALL HOOKS FIRST ──
@@ -23,11 +24,14 @@ export default function Reports() {
   }, [data]);
 
   const handleExportCSV = (ward) => {
-    const potholes = wardReports.find(w => w.ward === ward)?.potholes || [];
+    const potholes = wardReports.find((w) => w.ward === ward)?.potholes || [];
     const headers = "ID,Latitude,Longitude,Class,Severity,Reports,Road,First Reported\n";
-    const rows = potholes.map(p =>
-      `${p.id},${p.latitude},${p.longitude},${p.class_name},${p.severity_score},${p.report_count},${p.road_name},${p.first_reported}`
-    ).join("\n");
+    const rows = potholes
+      .map(
+        (p) =>
+          `${p.id},${p.latitude},${p.longitude},${p.class_name},${p.severity_score},${p.report_count},${p.road_name},${p.first_reported}`
+      )
+      .join("\n");
     const blob = new Blob([headers + rows], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -37,8 +41,11 @@ export default function Reports() {
   };
 
   // ── Loading check AFTER all hooks ──
-  if (loading || !data)
+  if (loading || !data) {
     return <div className="flex h-screen items-center justify-center text-slate-500">Loading...</div>;
+  }
+
+  const hasReports = wardReports.length > 0;
 
   return (
     <div className="min-h-screen pt-16">
@@ -54,82 +61,109 @@ export default function Reports() {
           </div>
         </div>
 
-        <div className="space-y-4">
-          {wardReports.map((ward) => {
-            const critical = ward.potholes.filter(p => p.status === "critical").length;
-            const moderate = ward.potholes.filter(p => p.status === "moderate").length;
+        {!hasReports ? (
+          <EmptyState
+            title="No reports yet"
+            description="Once detections start coming in, this page will automatically generate ward-wise priority reports and CSV exports."
+          />
+        ) : (
+          <div className="space-y-4">
+            {wardReports.map((ward) => {
+              const critical = ward.potholes.filter((p) => p.status === "critical").length;
+              const moderate = ward.potholes.filter((p) => p.status === "moderate").length;
 
-            return (
-              <div key={ward.ward} className="rounded-2xl border border-slate-800 bg-slate-900/50 overflow-hidden">
-                <div className="flex items-center justify-between p-5">
-                  <div className="flex items-center gap-4">
-                    <div className={`rounded-xl p-3 ${
-                      ward.worstSeverity >= 7 ? "bg-red-500/15 text-red-400" :
-                      ward.worstSeverity >= 4 ? "bg-amber-500/15 text-amber-400" :
-                      "bg-green-500/15 text-green-400"
-                    }`}>
-                      <MapPin className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold">{ward.ward}</h3>
-                      <div className="mt-0.5 flex gap-3 text-xs text-slate-500">
-                        <span>{ward.potholes.length} detections</span>
-                        <span>•</span>
-                        <span>{ward.totalReports} total reports</span>
-                        <span>•</span>
-                        <span className="text-red-400">{critical} critical</span>
-                        <span>•</span>
-                        <span className="text-amber-400">{moderate} moderate</span>
+              return (
+                <div
+                  key={ward.ward}
+                  className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50"
+                >
+                  <div className="flex items-center justify-between p-5">
+                    <div className="flex items-center gap-4">
+                      <div
+                        className={`rounded-xl p-3 ${
+                          ward.worstSeverity >= 7
+                            ? "bg-red-500/15 text-red-400"
+                            : ward.worstSeverity >= 4
+                            ? "bg-amber-500/15 text-amber-400"
+                            : "bg-green-500/15 text-green-400"
+                        }`}
+                      >
+                        <MapPin className="h-5 w-5" />
                       </div>
-                    </div>
-                  </div>
 
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <div className="text-sm text-slate-500">Priority</div>
-                      <div className={`text-xl font-bold ${
-                        ward.worstSeverity >= 7 ? "text-red-400" :
-                        ward.worstSeverity >= 4 ? "text-amber-400" : "text-green-400"
-                      }`}>
-                        {ward.worstSeverity.toFixed(1)}
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => handleExportCSV(ward.ward)}
-                      className="rounded-lg border border-slate-700 p-2 text-slate-400 transition-colors hover:border-orange-500 hover:text-orange-400"
-                      title="Download CSV report"
-                    >
-                      <Download className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Top 3 worst potholes in this ward */}
-                <div className="border-t border-slate-800 bg-slate-950/50 px-5 py-3">
-                  <div className="text-xs font-medium text-slate-600 mb-2">TOP PRIORITY IN THIS WARD</div>
-                  <div className="grid gap-2 sm:grid-cols-3">
-                    {ward.potholes
-                      .sort((a, b) => b.severity_score - a.severity_score)
-                      .slice(0, 3)
-                      .map((p) => (
-                        <div key={p.id} className="flex items-center justify-between rounded-lg bg-slate-900 px-3 py-2 text-xs">
-                          <div>
-                            <span className="text-slate-400">{p.road_name}</span>
-                            <span className="ml-2 capitalize text-slate-600">({p.class_name})</span>
-                          </div>
-                          <span className={`font-bold ${
-                            p.severity_score >= 7 ? "text-red-400" : "text-amber-400"
-                          }`}>
-                            {p.severity_score}
-                          </span>
+                      <div>
+                        <h3 className="text-lg font-semibold">{ward.ward}</h3>
+                        <div className="mt-0.5 flex flex-wrap gap-3 text-xs text-slate-500">
+                          <span>{ward.potholes.length} detections</span>
+                          <span>•</span>
+                          <span>{ward.totalReports} total reports</span>
+                          <span>•</span>
+                          <span className="text-red-400">{critical} critical</span>
+                          <span>•</span>
+                          <span className="text-amber-400">{moderate} moderate</span>
                         </div>
-                      ))}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <div className="text-sm text-slate-500">Priority</div>
+                        <div
+                          className={`text-xl font-bold ${
+                            ward.worstSeverity >= 7
+                              ? "text-red-400"
+                              : ward.worstSeverity >= 4
+                              ? "text-amber-400"
+                              : "text-green-400"
+                          }`}
+                        >
+                          {ward.worstSeverity.toFixed(1)}
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => handleExportCSV(ward.ward)}
+                        className="rounded-lg border border-slate-700 p-2 text-slate-400 transition-colors hover:border-orange-500 hover:text-orange-400"
+                        title="Download CSV report"
+                      >
+                        <Download className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Top 3 worst potholes in this ward */}
+                  <div className="border-t border-slate-800 bg-slate-950/50 px-5 py-3">
+                    <div className="mb-2 text-xs font-medium text-slate-600">TOP PRIORITY IN THIS WARD</div>
+                    <div className="grid gap-2 sm:grid-cols-3">
+                      {ward.potholes
+                        .slice()
+                        .sort((a, b) => b.severity_score - a.severity_score)
+                        .slice(0, 3)
+                        .map((p) => (
+                          <div
+                            key={p.id}
+                            className="flex items-center justify-between rounded-lg bg-slate-900 px-3 py-2 text-xs"
+                          >
+                            <div>
+                              <span className="text-slate-400">{p.road_name}</span>
+                              <span className="ml-2 capitalize text-slate-600">({p.class_name})</span>
+                            </div>
+                            <span
+                              className={`font-bold ${
+                                p.severity_score >= 7 ? "text-red-400" : "text-amber-400"
+                              }`}
+                            >
+                              {p.severity_score}
+                            </span>
+                          </div>
+                        ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
